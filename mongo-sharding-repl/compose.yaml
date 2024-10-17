@@ -1,0 +1,130 @@
+name: mongo-sharding-repl
+services:
+  pymongo_api:
+    image: kazhem/pymongo_api:1.0.0
+    ports:
+      - "8000:8080"
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      MONGODB_DATABASE_NAME: ${MONGODB_DATABASE_NAME}
+    networks:
+      - app-network
+
+  configSrv:
+    image: mongo:latest
+    container_name: configSrv_repl
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.10
+    volumes:
+      - config-data:/data/db
+    command: mongod --configsvr --replSet config_server --bind_ip_all --port 27017
+
+  shard1-a:
+    image: mongo:latest
+    container_name: shard1-a
+    restart: always
+    ports:
+      - "27028:27018"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.9
+    volumes:
+      - shard1-a-data:/data/db
+    command: mongod --shardsvr --replSet shard1 --bind_ip_all --port 27018
+
+  shard1-b:
+    image: mongo:latest
+    container_name: shard1-b
+    restart: always
+    ports:
+      - "27029:27018"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.8
+    volumes:
+      - shard1-b-data:/data/db
+    command: mongod --shardsvr --replSet shard1 --bind_ip_all --port 27018
+
+  shard1-c:
+    image: mongo:latest
+    container_name: shard1-c
+    restart: always
+    ports:
+      - "27030:27018"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.7
+    volumes:
+      - shard1-c-data:/data/db
+    command: mongod --shardsvr --replSet shard1 --bind_ip_all --port 27018
+
+  shard2-a:
+    image: mongo:latest
+    container_name: shard2-a
+    restart: always
+    ports:
+      - "27031:27019"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.6
+    volumes:
+      - shard2-a-data:/data/db
+    command: mongod --shardsvr --replSet shard2 --bind_ip_all --port 27019
+
+  shard2-b:
+    image: mongo:latest
+    container_name: shard2-b
+    restart: always
+    ports:
+      - "27032:27019"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.5
+    volumes:
+      - shard2-b-data:/data/db
+    command: mongod --shardsvr --replSet shard2 --bind_ip_all --port 27019
+
+  shard2-c:
+    image: mongo:latest
+    container_name: shard2-c
+    restart: always
+    ports:
+      - "27033:27019"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.4
+    volumes:
+      - shard2-c-data:/data/db
+    command: mongod --shardsvr --replSet shard2 --bind_ip_all --port 27019
+
+  mongos_router:
+    image: mongo:latest
+    container_name: mongos_router_repl
+    restart: always
+    ports:
+      - "27020:27020"
+    networks:
+      app-network:
+        ipv4_address: 173.18.0.3
+    command: mongos --configdb config_server/configSrv_repl:27017 --bind_ip_all --port 27020
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.18.0.0/16
+
+volumes:
+  config-data:
+  shard1-a-data:
+  shard1-b-data:
+  shard1-c-data:
+  shard2-a-data:
+  shard2-b-data:
+  shard2-c-data:
