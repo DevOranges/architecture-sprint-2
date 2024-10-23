@@ -2,7 +2,7 @@
 
 - Выполнить docker compose up -d
 - Выполнить ./scripts/mongo-init.sh
-- Выполнить ./scripts/test-sharding-repl.sh
+- Выполнить ./scripts/test.sh
 
 
 !!! Перед запуском убедиться, что контейнеры из предыдущих заданий уничтожены.
